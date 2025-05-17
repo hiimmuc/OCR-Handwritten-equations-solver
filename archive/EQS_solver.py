@@ -2,15 +2,37 @@ import time
 import urllib.request
 
 import cv2
-import helpers
 import latex2mathml.converter
 import numpy as np
 import sympy
 from sympy.parsing.sympy_parser import parse_expr
 from tensorflow.keras.models import load_model
+
+import helpers
 from yolo_helper import Yolov4
 
-names = ['+', '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '=', 'a', 'b', 'c', 'd', 'x', 'y', 'z']
+names = [
+    "+",
+    "-",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "=",
+    "a",
+    "b",
+    "c",
+    "d",
+    "x",
+    "y",
+    "z",
+]
 
 
 def process_str(x, i):
@@ -54,7 +76,7 @@ def eq_solver(equation):
             pos_sign.append(len(side))
 
             for j in range(len(pos_sign) - 1):
-                string += process_str(side[pos_sign[j]:pos_sign[j + 1]], i)
+                string += process_str(side[pos_sign[j] : pos_sign[j + 1]], i)
         list_eq.append(string)
     print(list_eq)
     result = sympy.solve([parse_expr(i) for i in list_eq])
@@ -65,17 +87,13 @@ def eq_solver(equation):
         for i, key in enumerate(result):
             if i == 0:
                 if len(result) == 1:
-                    str_result += "( {} = {} )".format(
-                        sympy.latex(key), sympy.latex(result[key]))
+                    str_result += "( {} = {} )".format(sympy.latex(key), sympy.latex(result[key]))
                 else:
-                    str_result += "( {} = {} ,".format(
-                        sympy.latex(key), sympy.latex(result[key]))
+                    str_result += "( {} = {} ,".format(sympy.latex(key), sympy.latex(result[key]))
             elif i == len(result) - 1:
-                str_result += " {} = {} )".format(sympy.latex(key),
-                                                  sympy.latex(result[key]))
+                str_result += " {} = {} )".format(sympy.latex(key), sympy.latex(result[key]))
             else:
-                str_result += " {} = {} ,".format(sympy.latex(key),
-                                                  sympy.latex(result[key]))
+                str_result += " {} = {} ,".format(sympy.latex(key), sympy.latex(result[key]))
         return [str_result]
 
     else:
@@ -87,25 +105,20 @@ def eq_solver(equation):
             for i, key in enumerate(r):
                 if i == 0:
                     if len(r) == 1:
-                        str_result += "( {} = {} )".format(
-                            sympy.latex(key), sympy.latex(r[key]))
+                        str_result += "( {} = {} )".format(sympy.latex(key), sympy.latex(r[key]))
                     else:
-                        str_result += "( {} = {} ,".format(
-                            sympy.latex(key), sympy.latex(r[key]))
+                        str_result += "( {} = {} ,".format(sympy.latex(key), sympy.latex(r[key]))
                 elif i == len(r) - 1:
-                    str_result += " {} = {} )".format(sympy.latex(key),
-                                                      sympy.latex(r[key]))
+                    str_result += " {} = {} )".format(sympy.latex(key), sympy.latex(r[key]))
                 else:
-                    str_result += " {} = {} ,".format(sympy.latex(key),
-                                                      sympy.latex(r[key]))
-        # Replace "//" to "/"
+                    str_result += " {} = {} ,".format(sympy.latex(key), sympy.latex(r[key]))
+            # Replace "//" to "/"
             list_result.append(str_result)
         return list_result
 
 
-class Solver():
+class Solver:
     def __init__(self, config_path, weight_eq, weight_char, weight_cnn):
-
         self.config_path = config_path
         self.weight_char = weight_char
         self.weight_eq = weight_eq
@@ -127,7 +140,9 @@ class Solver():
             raise "Invalid input type!!!"
         # 1  detect pt trong ảnh
 
-        equation_coor = self.model_yolo_eq.detector(img_test, 0.5, 0.4)  # get coordinate of all eqs
+        equation_coor = self.model_yolo_eq.detector(
+            img_test, 0.5, 0.4
+        )  # get coordinate of all eqs
         print(equation_coor)
 
         # 2 rotate img base on above coordinates
@@ -141,7 +156,9 @@ class Solver():
         equation_coor_1 = sorted(equation_coor_1, key=lambda x: x[1])
 
         # List equation images
-        equation_image = [image_skew[y:(y + h), x:(x + w + 5)] for x, y, w, h in equation_coor_1]
+        equation_image = [
+            image_skew[y : (y + h), x : (x + w + 5)] for x, y, w, h in equation_coor_1
+        ]
         # helpers.show_image(equation_image)
 
         list_text_equation = []
@@ -152,7 +169,7 @@ class Solver():
             char_coor = self.model_yolo_char.detector(eq, 0.5, 0.3)
 
             # List character images
-            char_image = [eq[y:y + h, x:x + w] for x, y, w, h in char_coor]
+            char_image = [eq[y : y + h, x : x + w] for x, y, w, h in char_coor]
 
             text = self.ocr(char_image)  # 6 classify character images
             list_text_equation.append(text)
@@ -168,7 +185,11 @@ class Solver():
         # crop again for displaying on web
         eqs_cropped = helpers.text_skew(image_skew, equation_coor_1, True)
 
-        return eqs_cropped, [latex2mathml.converter.convert(r) for r in result], helpers.eq_4_display(list_text_equation)
+        return (
+            eqs_cropped,
+            [latex2mathml.converter.convert(r) for r in result],
+            helpers.eq_4_display(list_text_equation),
+        )
 
     def ocr(self, list_image):
         eq_str = ""

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OCR Handwritten Equation Solver</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .upload-form {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px dashed #ccc;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .result-panel {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+
+        .equation-list {
+            margin-top: 20px;
+        }
+
+        .equation-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #eef8ff;
+            border-radius: 4px;
+        }
+
+        .image-container {
+            margin-bottom: 20px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .error-message {
+            color: #d9534f;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #d9534f;
+            border-radius: 4px;
+            background-color: #fdf7f7;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>OCR Handwritten Equation Solver</h1>
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="upload-form">
+            <form method="post" action="/" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">Choose an image of handwritten equation(s)</label>
+                    <input type="file" class="form-control-file" name="file" id="file" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Solve Equation</button>
+            </form>
+        </div>
+
+        {% if original_image %}
+        <div class="results">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="image-container">
+                        <h5>Original Image</h5>
+                        <img src="{{ original_image }}" class="img-fluid">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="image-container">
+                        <h5>Detected Equations</h5>
+                        <img src="{{ cropped_image }}" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-panel">
+                <h4>Detected Equations</h4>
+                <div class="equation-list">
+                    {% for eq in text %}
+                    <div class="equation-item">
+                        {{ eq|safe }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="result-panel">
+                <h4>Solution</h4>
+                <div class="equation-list">
+                    {% for sol in result %}
+                    <div class="equation-item">
+                        {{ sol|safe }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

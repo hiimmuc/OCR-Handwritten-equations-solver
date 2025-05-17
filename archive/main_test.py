@@ -3,9 +3,10 @@ import time
 import urllib.request
 
 import cv2
-import EQS_solver as eq
 import latex2mathml.converter
 import matplotlib
+
+import EQS_solver as eq
 
 print(cv2.__version__)
 print(matplotlib.__version__)
